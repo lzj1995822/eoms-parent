@@ -1,4 +1,4 @@
-package com.distance.cma.domain;
+package com.eoms.domain;
 
 import lombok.Getter;
 import lombok.Setter;

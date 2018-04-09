@@ -1,4 +1,4 @@
-package com.distance.cma.config;
+package com.eoms.config;
 
 import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.context.annotation.Bean;

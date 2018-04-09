@@ -1,7 +1,7 @@
-package com.distance.cma.service.impl;
+package com.eoms.service.impl;
 
-import com.distance.cma.repository.BaseRepository;
-import com.distance.cma.service.BaseService;
+import com.eoms.repository.BaseRepository;
+import com.eoms.service.BaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

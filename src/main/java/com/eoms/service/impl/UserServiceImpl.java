@@ -1,9 +1,9 @@
-package com.distance.cma.service.impl;
+package com.eoms.service.impl;
 
-import com.distance.cma.domain.User;
-import com.distance.cma.repository.BaseRepository;
-import com.distance.cma.repository.UserRepository;
-import com.distance.cma.service.UserService;
+import com.eoms.domain.User;
+import com.eoms.repository.BaseRepository;
+import com.eoms.repository.UserRepository;
+import com.eoms.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

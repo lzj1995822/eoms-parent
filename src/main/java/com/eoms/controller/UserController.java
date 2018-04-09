@@ -1,7 +1,7 @@
-package com.distance.cma.controller;
+package com.eoms.controller;
 
-import com.distance.cma.domain.User;
-import com.distance.cma.service.UserService;
+import com.eoms.domain.User;
+import com.eoms.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.web.bind.annotation.*;

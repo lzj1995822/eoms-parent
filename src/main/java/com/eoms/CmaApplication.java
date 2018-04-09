@@ -1,4 +1,4 @@
-package com.distance.cma;
+package com.eoms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

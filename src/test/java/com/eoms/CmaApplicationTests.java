@@ -1,4 +1,4 @@
-package com.distance.cma;
+package com.eoms;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

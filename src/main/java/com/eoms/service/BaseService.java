@@ -1,4 +1,4 @@
-package com.distance.cma.service;
+package com.eoms.service;
 
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;

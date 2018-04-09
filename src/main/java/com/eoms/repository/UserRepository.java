@@ -1,6 +1,6 @@
-package com.distance.cma.repository;
+package com.eoms.repository;
 
-import com.distance.cma.domain.User;
+import com.eoms.domain.User;
 import org.springframework.stereotype.Repository;
 
 @Repository
