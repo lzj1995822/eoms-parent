@@ -17,4 +17,9 @@ public class UserServiceImpl extends BaseServiseImpl<User, String> implements Us
     protected BaseRepository<User, String> getBaseRepository() {
         return userRepository;
     }
+
+    @Override
+    public User login(String name, String password) {
+        return null;
+    }
 }

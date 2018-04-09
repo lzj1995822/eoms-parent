@@ -4,19 +4,20 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-    <changeSet id="2018033001" author="jerry">
+    <changeSet id="20180409-01" author="asher">
         <comment>用户</comment>
-        <createTable tableName="cma_user">
+        <createTable tableName="eoms_user">
             <column name="id" type="varchar(36)">
-                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_cma_user"/>
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_eoms_user"/>
             </column>
+            <column name="name" type="varchar(36)"/>
+            <column name="password" type="varchar(36)"/>
+            <column name="code" type="varchar(36)" />
             <column name="create_at" type="datetime" />
             <column name="update_at" type="datetime" />
-            <column name="name" type="varchar(36)"/>
-            <column name="code" type="varchar(36)" />
         </createTable>
         <rollback>
-            <dropTable tableName="cma_user"/>
+            <dropTable tableName="eoms_user"/>
         </rollback>
     </changeSet>
 

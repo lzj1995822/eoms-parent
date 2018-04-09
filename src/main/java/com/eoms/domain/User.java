@@ -9,10 +9,13 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Entity
-@Table(name = "cma_user")
+@Table(name = "eoms_user")
 public class User extends BaseEntity<String> {
 
     private String name;
 
+    private String password;
+
     private String code;
+
 }
