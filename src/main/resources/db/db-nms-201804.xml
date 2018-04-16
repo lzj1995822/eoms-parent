@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="20180411-01" author="asher">
+        <comment>终端表</comment>
+        <createTable tableName="nms_terminal">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_nms_terminal"/>
+            </column>
+            <column name="terminal_name" type="varchar(80)"/>
+            <column name="terminal_type" type="varchar(36)"/>
+            <column name="terminal_des" type="varchar(200)"/>
+            <column name="terminal_up_time" type="varchar(36)"/>
+            <column name="terminal_object_id" type="varchar(36)"/>
+            <column name="terminal_contact" type="varchar(80)"/>
+            <column name="terminal_location" type="varchar(80)"/>
+            <column name="terminal_services" type="int"/>
+            <column name="terminal_num_user" type="int"/>
+            <column name="terminal_process" type="int"/>
+            <column name="terminal_mac" type="varchar(36)"/>
+            <column name="terminal_ip" type="varchar(36)"/>
+            <column name="CREATE_AT" type="datetime"/>
+            <column name="UPDATE_AT" type="datetime"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
