@@ -26,4 +26,61 @@
             <column name="UPDATE_AT" type="datetime"/>
         </createTable>
     </changeSet>
+    
+    <changeSet id="20180420-01" author="asher">
+        <createTable tableName="nms_interface">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_nms_interface"/>
+            </column>
+            <column name="terminal_id" type="varchar(36)">
+                <constraints referencedTableName="nms_terminal" referencedColumnNames="id" foreignKeyName="fk_nms_if_ter"/>
+            </column>
+            <column name="if_index" type="int"/>
+            <column name="if_descr" type="varchar(500)"/>
+            <column name="if_type" type="varchar(150)"/>
+            <column name="if_mtu" type="int"/>
+            <column name="if_speed" type="int"/>
+            <column name="if_phys_address" type="varchar(36)"/>
+            <column name="if_admin_status " type="varchar(36)"/>
+            <column name="if_oper_status " type="varchar(36)"/>
+            <column name="if_last_change " type="bigint"/>
+            <column name="if_in_octets " type="bigint"/>
+            <column name="if_in_ucast_pkts " type="int"/>
+            <column name="if_innucast_pkts " type="int"/>
+            <column name="if_in_discards " type="int"/>
+            <column name="if_in_errors " type="int"/>
+            <column name="if_in_unknown_protos" type="int"/>
+            <column name="if_out_octets " type="bigint"/>
+            <column name="if_out_ucast_pkts" type="int"/>
+            <column name="if_outnucast_pkts" type="int"/>
+            <column name="if_out_discards" type="int"/>
+            <column name="if_out_errors" type="int"/>
+            <column name="if_outqlen" type="int"/>
+            <column name="if_specific" type="varchar(80)"/>
+            <column name="CREATE_AT" type="datetime"/>
+            <column name="UPDATE_AT" type="datetime"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20180424-01" author="asher">
+        <comment>接口性能详情</comment>
+        <createTable tableName="nms_interface_detail">
+        <column name="id" type="varchar(36)">
+            <constraints primaryKey="true" nullable="false" primaryKeyName="pk_nms_interface_detail"/>
+        </column>
+        <column name="interface_id" type="varchar(36)">
+            <constraints referencedTableName="nms_interface" referencedColumnNames="id" foreignKeyName="fk_nms_if_detail"/>
+        </column>
+        <column name="interface_utilization" type="varchar(36)"/>
+        <column name="input_error_rate" type="varchar(36)"/>
+        <column name="output_error_rate" type="varchar(36)"/>
+        <column name="input_loss_rate" type="varchar(36)"/>
+        <column name="output_loss_rate" type="varchar(36)"/>
+        <column name="input_flow" type="varchar(36)"/>
+        <column name="output_flow" type="varchar(36)"/>
+        <column name="if_specific" type="varchar(80)"/>
+        <column name="CREATE_AT" type="datetime"/>
+        <column name="UPDATE_AT" type="datetime"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

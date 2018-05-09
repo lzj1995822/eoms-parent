@@ -13,16 +13,16 @@ import static com.eoms.base.CommonUtils.getHeadMap;
 
 public class UserControllerTest extends BaseControllerTest implements IBaseControllerTest {
 
-    private String url = baseUrl + "user/add";
+    private String url = baseUrl + "interfaceDetails/start";
 
     @Override
     @Test
     public void add() {
         Map<String,String> parameterMap = new HashMap<String, String>();
-        parameterMap.put("name","asher");
-        parameterMap.put("password","q24348590");
-        String res = HttpUtils.doPost(url,parameterMap,HttpUtils.REQUEST_ENCODING,getHeadMap());
-        CommonUtils.printJSON(url,res);
+//        parameterMap.put("name","asher");
+//        parameterMap.put("password","q24348590");
+        String res = HttpUtils.doGet(url,parameterMap);
+//        CommonUtils.printJSON(url,res);
     }
 
     @Override

@@ -54,10 +54,11 @@ public class SnmpUtils {
         return target;
     }
     /*获取信息*/
-    public static void snmpGet(String ip, String community, String oid) {
+    public static PDU snmpGet(String ip, String community, String oid) {
 
         CommunityTarget target = createDefault(ip, community);
         Snmp snmp = null;
+        PDU response = null;
         try {
             PDU pdu = new PDU();
             // pdu.add(new VariableBinding(new OID(new int[]
@@ -71,7 +72,7 @@ public class SnmpUtils {
             pdu.setType(PDU.GET);
             ResponseEvent respEvent = snmp.send(pdu, target);
             System.out.println("PeerAddress:" + respEvent.getPeerAddress());
-            PDU response = respEvent.getResponse();
+            response = respEvent.getResponse();
 
             if (response == null) {
                 System.out.println("response is null, request time out");
@@ -106,7 +107,7 @@ public class SnmpUtils {
                     snmp = null;
                 }
             }
-
+            return response;
         }
     }
     /*获取列表信息，一次获取多条信息*/
