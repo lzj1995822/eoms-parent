@@ -1,13 +1,12 @@
 package com.eoms.snmp;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.snmp4j.CommunityTarget;
-import org.snmp4j.PDU;
-import org.snmp4j.Snmp;
-import org.snmp4j.TransportMapping;
+
+import org.snmp4j.*;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.event.ResponseListener;
 import org.snmp4j.mp.SnmpConstants;
@@ -159,10 +158,11 @@ public class SnmpUtils {
         }
     }
     /*获取列表信息，一次获取多条信息*/
-    public static void snmpGetList(String ip, String community, List<String> oidList)
+    public static PDU snmpGetList(String ip, String community, List<String> oidList)
     {
         CommunityTarget target = createDefault(ip, community);
         Snmp snmp = null;
+        PDU  response = null;
         try {
             PDU pdu = new PDU();
 
@@ -178,7 +178,7 @@ public class SnmpUtils {
             pdu.setType(PDU.GET);
             ResponseEvent respEvent = snmp.send(pdu, target);
             System.out.println("PeerAddress:" + respEvent.getPeerAddress());
-            PDU response = respEvent.getResponse();
+            response = respEvent.getResponse();
 
             if (response == null) {
                 System.out.println("response is null, request time out");
@@ -203,7 +203,7 @@ public class SnmpUtils {
                     snmp = null;
                 }
             }
-
+            return response;
         }
     }
     /*异步获取信息列表*/
@@ -280,11 +280,13 @@ public class SnmpUtils {
         }
     }
     /*获取表格*/
-    public static void snmpWalk(String ip, String community, String targetOid)
+    public static List<PDU> snmpWalk(String ip, String community, String targetOid)
     {
         CommunityTarget target = createDefault(ip, community);
         TransportMapping transport = null;
         Snmp snmp = null;
+        PDU response = null;
+        List<PDU> pduList = new ArrayList<>();
         try {
             transport = new DefaultUdpTransportMapping();
             snmp = new Snmp(transport);
@@ -300,8 +302,8 @@ public class SnmpUtils {
                 VariableBinding vb = null;
                 ResponseEvent respEvent = snmp.getNext(pdu, target);
 
-                PDU response = respEvent.getResponse();
-
+                response = respEvent.getResponse();
+                pduList.add(response);
                 if (null == response) {
                     System.out.println("responsePDU == null");
                     finished = true;
@@ -335,6 +337,7 @@ public class SnmpUtils {
                     snmp = null;
                 }
             }
+            return pduList;
         }
     }
 

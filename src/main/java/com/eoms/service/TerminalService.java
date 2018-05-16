@@ -13,4 +13,6 @@ public interface TerminalService extends BaseService<Terminal, String> {
      * @return
      */
     List<Terminal> scanTerminal();
+
+    Terminal findTerminalByTerminalIp(String terminalIp);
 }

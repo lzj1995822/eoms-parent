@@ -1,18 +1,15 @@
 package com.eoms.service.impl;
 
-import com.eoms.domain.nms.Interface;
-import com.eoms.domain.nms.InterfaceDetail;
-import com.eoms.domain.nms.Terminal;
+import com.eoms.domain.nms.*;
+import com.eoms.service.IPRouteTableService;
 import com.eoms.service.InterfaceDetailService;
 import com.eoms.service.InterfaceSevice;
 import com.eoms.service.TerminalService;
+import com.eoms.snmp.SnmpConstant;
 import com.eoms.snmp.SnmpUtils;
 import org.snmp4j.PDU;
 import org.snmp4j.mp.SnmpConstants;
-import org.snmp4j.smi.OID;
-import org.snmp4j.smi.OctetString;
-import org.snmp4j.smi.TimeTicks;
-import org.snmp4j.smi.Variable;
+import org.snmp4j.smi.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +26,9 @@ public class SnmpService {
 
     @Autowired
     private InterfaceSevice interfaceSevice;
+
+    @Autowired
+    private IPRouteTableService ipRouteTableService;
 
     @Autowired
     private InterfaceDetailService interfaceDetailService;
@@ -234,11 +234,11 @@ public class SnmpService {
             interfaceDetail.setInputLossRate(inputLossRate.toString());
             BigDecimal outLossRate = new BigDecimal((itfY.getIfOutDiscards() - itf.getIfOutDiscards()) * 100).divide(new BigDecimal(intervalDatab), 4, BigDecimal.ROUND_HALF_EVEN);
             interfaceDetail.setOutputLossRate(outLossRate.toString());
+            Long inputFlow = (itfY.getIfInOctets()-itf.getIfInOctets())*8/60; //单位bps
+            Long outputFlow = (itfY.getIfOutOctets()-itf.getIfOutOctets())*8/60;
+            interfaceDetail.setInputFlow(inputFlow.toString());
+            interfaceDetail.setOutputFlow(outputFlow.toString());
         }
-        Long inputFlow = itf.getIfInOctets()*8/sysuptime; //单位bps
-        Long outputFlow = itf.getIfOutOctets()*8/sysuptime;
-        interfaceDetail.setInputFlow(inputFlow.toString());
-        interfaceDetail.setOutputFlow(outputFlow.toString());
         return interfaceDetail;
     }
 
@@ -267,10 +267,87 @@ public class SnmpService {
         }
     }
 
+    public IPGroup getIPGoup(String ip) {
+        List<String> oidList = new ArrayList<>();
+        oidList.add(SnmpConstant.ipForwarding);
+        oidList.add(SnmpConstant.ipDefaultTTL);
+        oidList.add(SnmpConstant.ipForwDatagrams);
+        oidList.add(SnmpConstant.ipFragOK);
+        oidList.add(SnmpConstant.ipFragsCreates);
+        oidList.add(SnmpConstant.ipFragsFails);
+        oidList.add(SnmpConstant.ipInaddrErrors);
+        oidList.add(SnmpConstant.ipInDelivers);
+        oidList.add(SnmpConstant.ipInDiscards);
+        oidList.add(SnmpConstant.ipInHdrError);
+        oidList.add(SnmpConstant.ipInReceives);
+        oidList.add(SnmpConstant.ipInUnknownProtos);
+        oidList.add(SnmpConstant.ipOutDiscards);
+        oidList.add(SnmpConstant.ipOutNoRoutes);
+        oidList.add(SnmpConstant.ipOutRequests);
+        oidList.add(SnmpConstant.ipReasmFails);
+        oidList.add(SnmpConstant.ipReasmReqds);
+        oidList.add(SnmpConstant.ipReasmOKs);
+        oidList.add(SnmpConstant.ipReasmTimeout);
+        oidList.add(SnmpConstant.ipRoutingDiscards);
+        PDU responsePDU = SnmpUtils.snmpGetList(ip,"public",oidList);
+        IPGroup ipGroup = new IPGroup();
+        if (responsePDU == null){
+            return null;
+        }
+        return ipGroup.toEntity(ipGroup,responsePDU);
+    }
+
+    public List<IPRouteTable> getIPRouteTable(String ip) {
+        List<PDU> pduList = SnmpUtils.snmpWalk(ip,"public","1.3.6.1.2.1.4.21");
+        List<IPRouteTable> ipRouteTableList = new ArrayList<>();
+        IPRouteTable ipRouteTable = new IPRouteTable();
+        for (int i = 0 ;i<pduList.size(); i++){
+            ipRouteTableList = ipRouteTable.toEntity(ipRouteTableList,pduList.get(i));
+        }
+        return ipRouteTableList;
+    }
+
+    public List<IPNtmTable> getIPNtmTable(String ip) {
+        List<PDU> pduList = SnmpUtils.snmpWalk(ip,"public","1.3.6.1.2.1.4.22");
+        List<IPNtmTable> ipNtmTableList = new ArrayList<>();
+        IPNtmTable ipNtmTable = new IPNtmTable();
+        for (int i = 0 ;i<pduList.size(); i++){
+            ipNtmTableList = ipNtmTable.toEntity(ipNtmTableList,pduList.get(i));
+        }
+        return ipNtmTableList;
+    }
+
+    public TCPGroup getTCPGoup(String ip) {
+        List<String> oidList = new ArrayList<>();
+        oidList.add(SnmpConstant.tcpRtoAlgorithm);
+        oidList.add(SnmpConstant.tcpRtoMin);
+        oidList.add(SnmpConstant.tcpRtoMax);
+        oidList.add(SnmpConstant.tcpMaxConn);
+        oidList.add(SnmpConstant.tcpActiveOpens);
+        oidList.add(SnmpConstant.tcpPassiveOpens);
+        oidList.add(SnmpConstant.tcpAttemptFails);
+        oidList.add(SnmpConstant.tcpEstabResets);
+        oidList.add(SnmpConstant.tcpCurrEstab);
+        oidList.add(SnmpConstant.tcpInSegs);
+        oidList.add(SnmpConstant.tcpOutSegs);
+        oidList.add(SnmpConstant.tcpRetransSegs);
+        oidList.add(SnmpConstant.tcpInErrs);
+        oidList.add(SnmpConstant.tcpOutRsts);
+        PDU responsePDU = SnmpUtils.snmpGetList(ip,"public",oidList);
+        TCPGroup tcpGroup = new TCPGroup();
+        if (responsePDU == null){
+            return null;
+        }
+        tcpGroup = tcpGroup.toEntity(tcpGroup,responsePDU);
+        return tcpGroup;
+    }
+
 
     public static void main(String[] args) {
-        SnmpUtils.snmpGet("127.0.0.1","public","1.3.6.1.4.1.11.2.3.1.1.7.0");
-
+        SnmpService snmpService = new SnmpService();
+//        SnmpUtils.snmpGet("127.0.0.1","public","1.3.6.1.2.1.4.21.1.1.127.0.0.1");
+        snmpService.getTCPGoup("192.168.0.103");
+//            snmpService.getDeviceInfo("192.168.0.101");
 //        List<Interface> interfaceList = new ArrayList<>();
 //        interfaceList =  snmpService.getInterfaceList("127.0.0.1");
 //        System.out.print(interfaceList);

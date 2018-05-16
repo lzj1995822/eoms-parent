@@ -83,4 +83,112 @@
         <column name="UPDATE_AT" type="datetime"/>
         </createTable>
     </changeSet>
+
+    <changeSet id="2018-05-11" author="asher">
+        <comment>ip组</comment>
+        <createTable tableName="nms_ip_group">
+        <column name="id" type="varchar(36)">
+            <constraints primaryKey="true" nullable="false" primaryKeyName="pk_nms_ip_group"/>
+        </column>
+        <column name="terminal_id" type="varchar(36)">
+            <constraints referencedTableName="nms_terminal" referencedColumnNames="id" foreignKeyName="fk_nms_ip_terminal"/>
+        </column>
+        <column name="ip_forwarding" type="int" />
+        <column name="ip_defaultttL" type="int" />
+        <column name="ip_forw_datagrams" type="bigint" />
+        <column name="ip_fragok" type="bigint" />
+        <column name="ip_frags_creates" type="bigint" />
+        <column name="ip_frags_fails" type="bigint" />
+        <column name="ip_inaddr_errors" type="bigint" />
+        <column name="ip_in_delivers" type="bigint" />
+        <column name="ip_in_discards" type="bigint" />
+        <column name="ip_in_hdr_error" type="bigint" />
+        <column name="ip_in_receives" type="bigint" />
+        <column name="ip_in_unknown_protos" type="bigint" />
+        <column name="ip_out_discards" type="bigint" />
+        <column name="ip_out_no_routes" type="bigint" />
+        <column name="ip_out_requests" type="bigint" />
+        <column name="ip_reasm_fails" type="bigint" />
+        <column name="ip_reasm_reqds" type="bigint" />
+        <column name="ip_reasmoks" type="bigint" />
+        <column name="ip_reasm_timeout" type="bigint" />
+        <column name="ip_routing_discards" type="bigint" />
+        <column name="CREATE_AT" type="datetime"/>
+        <column name="UPDATE_AT" type="datetime"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20180512-01" author="asher">
+        <comment>路由表</comment>
+        <createTable tableName="nms_route_table">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_route_table"/>
+            </column>
+            <column name="terminal_id" type="varchar(36)">
+                <constraints referencedTableName="nms_terminal" referencedColumnNames="id" foreignKeyName="fk_nms_route_ter"/>
+            </column>
+            <column name="ip_route_dest" type="varchar(15)"/>
+            <column name="ip_route_if_index" type="int"/>
+            <column name="ip_route_metric1" type="int"/>
+            <column name="ip_route_metric2" type="int"/>
+            <column name="ip_route_metric3" type="int"/>
+            <column name="ip_route_metric4" type="int"/>
+            <column name="ip_route_next_hop" type="varchar(36)"/>
+            <column name="ip_route_type " type="int"/>
+            <column name="ip_route_proto " type="int"/>
+            <column name="ip_route_age " type="varchar(36)"/>
+            <column name="ip_route_mask" type="varchar(36)"/>
+            <column name="ip_route_metric5" type="int"/>
+            <column name="ip_route_info" type="varchar(36)"/>
+            <column name="ip" type="varchar(36)"/>
+            <column name="CREATE_AT" type="datetime"/>
+            <column name="UPDATE_AT" type="datetime"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20180512-03" author="asher">
+    <comment>IP/MAC转换表</comment>
+    <createTable tableName="nms_ntm_table">
+        <column name="id" type="varchar(36)">
+            <constraints primaryKey="true" nullable="false" primaryKeyName="pk_ntm_table"/>
+        </column>
+        <column name="terminal_id" type="varchar(36)">
+            <constraints referencedTableName="nms_terminal" referencedColumnNames="id" foreignKeyName="fk_nms_ntm_ter"/>
+        </column>
+        <column name="ip_net_to_media_if_index" type="int"></column>
+        <column name="ip_net_to_media_phys_address" type="varchar(36)"></column>
+        <column name="ip_net_to_media_net_address" type="varchar(36)"></column>
+        <column name="ip_net_to_media_type" type="bigint"></column>
+        <column name="ip" type="varchar(36)"></column>
+        <column name="CREATE_AT" type="datetime"/>
+        <column name="UPDATE_AT" type="datetime"/>
+    </createTable>
+    </changeSet>
+
+    <changeSet id="20180510-01" author="asher">
+        <createTable tableName="nms_tcp_group">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_tcp_group"/>
+            </column>
+            <column name="terminal_id" type="varchar(36)">
+                <constraints referencedTableName="nms_terminal" referencedColumnNames="id" foreignKeyName="fk_tcp_group_ter"/>
+            </column>
+            <column name="tcp_rto_algorithm" type="bigint"/>
+            <column name="tcp_rto_min" type="bigint"/>
+            <column name="tcp_rto_max" type="bigint"/>
+            <column name="tcp_Max_conn" type="bigint"/>
+            <column name="tcp_active_opens" type="bigint"/>
+            <column name="tcp_passive_opens" type="bigint"/>
+            <column name="tcp_attempt_fails" type="bigint"/>
+            <column name="tcp_estab_resets " type="bigint"/>
+            <column name="tcp_curr_estab " type="bigint"/>
+            <column name="tcp_in_segs" type="bigint"/>
+            <column name="tcp_out_segs" type="bigint"/>
+            <column name="tcp_retrans_segs" type="bigint"/>
+            <column name="tcp_in_errs " type="bigint"/>
+            <column name="tcp_out_rsts " type="bigint"/>
+            <column name="CREATE_AT" type="datetime"/>
+            <column name="UPDATE_AT" type="datetime"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
