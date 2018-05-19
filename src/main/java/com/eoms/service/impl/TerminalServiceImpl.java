@@ -28,7 +28,8 @@ public class TerminalServiceImpl extends BaseServiseImpl<Terminal,String> implem
     @Override
     public List<Terminal> scanTerminal() {
         List<String> ipList = new ArrayList();
-        ipList.add("192.168.0.100");
+        ipList.add("192.168.0.104");
+        ipList.add("192.168.0.106");
         for (String ip : ipList) {
             Terminal terminal1 = findTerminalByTerminalIp(ip);
             Terminal terminal = snmpService.getDeviceInfo(ip);

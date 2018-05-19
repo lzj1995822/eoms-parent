@@ -191,4 +191,24 @@
             <column name="UPDATE_AT" type="datetime"/>
         </createTable>
     </changeSet>
+
+    <changeSet id="2018-05-16" author="asher">
+        <comment>tcp连接状态表</comment>
+        <createTable tableName="nms_tcp_table">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_tcp_table"/>
+            </column>
+            <column name="terminal_id" type="varchar(36)">
+                <constraints referencedTableName="nms_terminal" referencedColumnNames="id" foreignKeyName="fk_tcp_table"/>
+            </column>
+            <column name="tcp_conn_state" type="int"/>
+            <column name="tcp_conn_local_address" type="varchar(36)"/>
+            <column name="tcp_conn_local_port" type="varchar(36)"/>
+            <column name="tcp_conn_rem_address" type="varchar(36)"/>
+            <column name="tcp_conn_rem_port" type="varchar(36)"/>
+            <column name="ip" type="varchar(255)"/>
+            <column name="CREATE_AT" type="datetime"/>
+            <column name="UPDATE_AT" type="datetime"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

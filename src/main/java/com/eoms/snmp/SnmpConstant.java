@@ -170,5 +170,12 @@ public final class SnmpConstant {
     public static final String tcpInErrs = "1.3.6.1.2.1.6.14.0";
     public static final String tcpOutRsts = "1.3.6.1.2.1.6.15.0";
 
+    public static final String tcpConnState = "1.3.6.1.2.1.6.13.1.1";
+    public static final String tcpConnLocalAddress = "1.3.6.1.2.1.6.13.1.2";
+    public static final String tcpConnLocalPort = "1.3.6.1.2.1.6.13.1.3";
+    public static final String tcpConnRemAddress = "1.3.6.1.2.1.6.13.1.4";
+    public static final String tcpConnRemPort = "1.3.6.1.2.1.6.13.1.5";
+
+
 }
 

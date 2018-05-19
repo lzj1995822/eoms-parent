@@ -250,7 +250,7 @@ public class SnmpService {
         for (Terminal terminal : terminalList) {
             interfaceList = getActiveInterfaceList(terminal);
             try {
-                Thread.currentThread().sleep(30000);
+                Thread.currentThread().sleep(25000);
                 getInterfaceList(terminal);
                 interfaceListY = getActiveInterfaceList(terminal);
                 //获取2个时间点的接口数据以计算
@@ -342,11 +342,21 @@ public class SnmpService {
         return tcpGroup;
     }
 
+    public List<TCPConnectTable> getTCPTable(String ip){
+        List<PDU> pduList = SnmpUtils.snmpWalk(ip,"public","1.3.6.1.2.1.6.13");
+        List<TCPConnectTable> tcpConnectTableList = new ArrayList<>();
+        TCPConnectTable tcpConnectTable = new TCPConnectTable();
+        for (int i = 0 ;i<pduList.size(); i++){
+            tcpConnectTableList = tcpConnectTable.toEntity(tcpConnectTableList,pduList.get(i));
+        }
+        return tcpConnectTableList;
+    }
+
 
     public static void main(String[] args) {
         SnmpService snmpService = new SnmpService();
 //        SnmpUtils.snmpGet("127.0.0.1","public","1.3.6.1.2.1.4.21.1.1.127.0.0.1");
-        snmpService.getTCPGoup("192.168.0.103");
+        snmpService.getTCPTable("192.168.0.106");
 //            snmpService.getDeviceInfo("192.168.0.101");
 //        List<Interface> interfaceList = new ArrayList<>();
 //        interfaceList =  snmpService.getInterfaceList("127.0.0.1");
