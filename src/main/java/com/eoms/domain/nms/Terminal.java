@@ -8,6 +8,7 @@ import org.snmp4j.PDU;
 import org.snmp4j.smi.VariableBinding;
 
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Date;
 import java.util.Vector;
@@ -17,6 +18,9 @@ import java.util.Vector;
 @Entity
 @Table(name = "nms_terminal")
 public class Terminal extends BaseEntity<String>{
+
+    @OneToOne(mappedBy = "terminal")
+    private HrSystem hrSystem;
 
     private String  terminalName;
 

@@ -1,5 +1,6 @@
 package com.eoms.service;
 
+import com.eoms.domain.dto.SystemDTO;
 import com.eoms.domain.nms.Terminal;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ public interface TerminalService extends BaseService<Terminal, String> {
      * 扫描网络上的终端
      * @return
      */
-    List<Terminal> scanTerminal();
+    List<SystemDTO> scanTerminal();
 
     Terminal findTerminalByTerminalIp(String terminalIp);
 }

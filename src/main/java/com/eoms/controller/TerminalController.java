@@ -1,5 +1,6 @@
 package com.eoms.controller;
 
+import com.eoms.domain.dto.SystemDTO;
 import com.eoms.domain.nms.InterfaceDetail;
 import com.eoms.domain.nms.Terminal;
 import com.eoms.service.TerminalService;
@@ -23,7 +24,7 @@ public class TerminalController {
     private SnmpService snmpService;
 
     @GetMapping("/scan")
-    public List<Terminal> scanTerminal(){
+    public List<SystemDTO> scanTerminal(){
         return terminalService.scanTerminal();
     }
 

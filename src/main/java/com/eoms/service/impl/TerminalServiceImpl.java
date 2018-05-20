@@ -1,9 +1,11 @@
 package com.eoms.service.impl;
 
+import com.eoms.domain.dto.SystemDTO;
 import com.eoms.domain.nms.Terminal;
 import com.eoms.repository.BaseRepository;
 import com.eoms.repository.TerminalRepository;
 import com.eoms.service.TerminalService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +28,9 @@ public class TerminalServiceImpl extends BaseServiseImpl<Terminal,String> implem
     }
 
     @Override
-    public List<Terminal> scanTerminal() {
+    public List<SystemDTO> scanTerminal() {
         List<String> ipList = new ArrayList();
-        ipList.add("192.168.0.104");
+        ipList.add("192.168.0.101");
         ipList.add("192.168.0.106");
         for (String ip : ipList) {
             Terminal terminal1 = findTerminalByTerminalIp(ip);
@@ -41,7 +43,14 @@ public class TerminalServiceImpl extends BaseServiseImpl<Terminal,String> implem
                 save(terminal);
             }
         }
-        return findAll();
+        List<SystemDTO> systemDTOList = new ArrayList<>();
+        findAll().forEach(terminal -> {
+            SystemDTO systemDTO = snmpService.get(terminal);
+            BeanUtils.copyProperties(terminal,systemDTO);
+            systemDTO.setId(terminal.getId());
+            systemDTOList.add(systemDTO);
+        });
+        return systemDTOList;
     }
 
     @Override

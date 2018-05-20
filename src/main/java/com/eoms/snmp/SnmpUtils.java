@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import com.eoms.domain.dto.SystemDTO;
 import org.snmp4j.*;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.event.ResponseListener;
+import org.snmp4j.mp.MessageProcessingModel;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.Address;
 import org.snmp4j.smi.GenericAddress;
@@ -18,6 +20,9 @@ import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
+import org.snmp4j.util.PDUFactory;
+import org.snmp4j.util.TableEvent;
+import org.snmp4j.util.TableUtils;
 
 /**
  * 封装Snmp4j
@@ -239,15 +244,12 @@ public class SnmpUtils {
                     if (response == null) {
                         System.out.println("[ERROR]: response is null");
                     } else if (response.getErrorStatus() != 0) {
-                        System.out.println("[ERROR]: response status"
-                                + response.getErrorStatus() + " Text:"
-                                + response.getErrorStatusText());
+                        System.out.println("[ERROR]: response status" + response.getErrorStatus() + " Text:"+ response.getErrorStatusText());
                     } else {
                         System.out.println("Received response Success!");
                         for (int i = 0; i < response.size(); i++) {
                             VariableBinding vb = response.get(i);
-                            System.out.println(vb.getOid() + " = "
-                                    + vb.getVariable());
+                            System.out.println(vb.getOid() + " = " + vb.getVariable());
                         }
                         System.out.println("SNMP Asyn GetList OID finished. ");
                         latch.countDown();
@@ -358,12 +360,10 @@ public class SnmpUtils {
             System.out.println("[true] targetOID.leftMostCompare() != 0");
             finished = true;
         } else if (Null.isExceptionSyntax(vb.getVariable().getSyntax())) {
-            System.out
-                    .println("[true] Null.isExceptionSyntax(vb.getVariable().getSyntax())");
+            System.out.println("[true] Null.isExceptionSyntax(vb.getVariable().getSyntax())");
             finished = true;
         } else if (vb.getOid().compareTo(targetOID) <= 0) {
-            System.out.println("[true] Variable received is not "
-                    + "lexicographic successor of requested " + "one:");
+            System.out.println("[true] Variable received is not "+ "lexicographic successor of requested " + "one:");
             System.out.println(vb.toString() + " <= " + targetOID);
             finished = true;
         }
@@ -398,26 +398,21 @@ public class SnmpUtils {
                         if (response == null) {
                             System.out.println("[ERROR]: response is null");
                         } else if (response.getErrorStatus() != 0) {
-                            System.out.println("[ERROR]: response status"
-                                    + response.getErrorStatus() + " Text:"
-                                    + response.getErrorStatusText());
+                            System.out.println("[ERROR]: response status"+ response.getErrorStatus() + " Text:"+ response.getErrorStatusText());
                         } else {
-                            System.out
-                                    .println("Received Walk response value :");
+                            System.out.println("Received Walk response value :");
                             VariableBinding vb = response.get(0);
 
                             boolean finished = checkWalkFinished(targetOID,
                                     pdu, vb);
                             if (!finished) {
-                                System.out.println(vb.getOid() + " = "
-                                        + vb.getVariable());
+                                System.out.println(vb.getOid() + " = "+ vb.getVariable());
                                 pdu.setRequestID(new Integer32(0));
                                 pdu.set(0, vb);
                                 ((Snmp) event.getSource()).getNext(pdu, target,
                                         null, this);
                             } else {
-                                System.out
-                                        .println("SNMP Asyn walk OID value success !");
+                                System.out.println("SNMP Asyn walk OID value success !");
                                 latch.countDown();
                             }
                         }
@@ -458,4 +453,442 @@ public class SnmpUtils {
         snmp.send(pdu, target);
         snmp.close();
     }
+
+    //获取cpu使用率
+    public static int collectCPU(String ip) {
+        TransportMapping transport = null ;
+        Snmp snmp = null ;
+        CommunityTarget target;
+        int cpuUzi = 0;
+        String[] oids = {"1.3.6.1.2.1.25.3.3.1.2"};
+        try {
+            transport = new DefaultUdpTransportMapping();
+            snmp = new Snmp(transport);//创建snmp
+            snmp.listen();//监听消息
+            target = new CommunityTarget();
+            target.setCommunity(new OctetString("public"));
+            target.setRetries(2);
+            target.setAddress(GenericAddress.parse("udp:"+ip+"/161"));
+            target.setTimeout(8000);
+            target.setVersion(SnmpConstants.version2c);
+            TableUtils tableUtils = new TableUtils(snmp, new PDUFactory() {
+                @Override
+                public PDU createPDU(Target arg0) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+
+                @Override
+                public PDU createPDU(MessageProcessingModel messageProcessingModel) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+            });
+            OID[] columns = new OID[oids.length];
+            for (int i = 0; i < oids.length; i++)
+                columns[i] = new OID(oids[i]);
+            List<TableEvent> list = tableUtils.getTable(target, columns, null, null);
+            if(list.size()==1 && list.get(0).getColumns()==null){
+                System.out.println(" null");
+            }else{
+                int percentage = 0;
+                for(TableEvent event : list){
+                    VariableBinding[] values = event.getColumns();
+                    if(values != null)
+                        percentage += Integer.parseInt(values[0].getVariable().toString());
+                }
+                cpuUzi = percentage/list.size();
+                System.out.println("CPU利用率为："+percentage/list.size()+"%");
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            try {
+                if(transport!=null)
+                    transport.close();
+                if(snmp!=null)
+                    snmp.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return cpuUzi;
+        }
+    }
+
+    //获取内存相关信息
+    public static SystemDTO collectMemory(String ip) {
+        TransportMapping transport = null ;
+        Snmp snmp = null ;
+        CommunityTarget target;
+        String[] oids = {"1.3.6.1.2.1.25.2.3.1.2",  //type 存储单元类型
+                "1.3.6.1.2.1.25.2.3.1.3",  //descr
+                "1.3.6.1.2.1.25.2.3.1.4",  //unit 存储单元大小
+                "1.3.6.1.2.1.25.2.3.1.5",  //size 总存储单元数
+                "1.3.6.1.2.1.25.2.3.1.6"}; //used 使用存储单元数;
+        String PHYSICAL_MEMORY_OID = "1.3.6.1.2.1.25.2.1.2";//物理存储
+        String VIRTUAL_MEMORY_OID = "1.3.6.1.2.1.25.2.1.3"; //虚拟存储
+        SystemDTO systemDTO = new SystemDTO();
+        try {
+            transport = new DefaultUdpTransportMapping();
+            snmp = new Snmp(transport);//创建snmp
+            snmp.listen();//监听消息
+            target = new CommunityTarget();
+            target.setCommunity(new OctetString("public"));
+            target.setRetries(2);
+            target.setAddress(GenericAddress.parse("udp:"+ip+"/161"));
+            target.setTimeout(8000);
+            target.setVersion(SnmpConstants.version2c);
+            TableUtils tableUtils = new TableUtils(snmp, new PDUFactory() {
+                @Override
+                public PDU createPDU(Target arg0) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+
+                @Override
+                public PDU createPDU(MessageProcessingModel messageProcessingModel) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+            });
+            OID[] columns = new OID[oids.length];
+            for (int i = 0; i < oids.length; i++)
+                columns[i] = new OID(oids[i]);
+            @SuppressWarnings("unchecked")
+            List<TableEvent> list = tableUtils.getTable(target, columns, null, null);
+            if(list.size()==1 && list.get(0).getColumns()==null){
+                System.out.println(" null");
+            }else{
+                for(TableEvent event : list){
+                    VariableBinding[] values = event.getColumns();
+                    if(values == null) continue;
+                    int unit = Integer.parseInt(values[2].getVariable().toString());//unit 存储单元大小
+                    int totalSize = Integer.parseInt(values[3].getVariable().toString());//size 总存储单元数
+                    int usedSize = Integer.parseInt(values[4].getVariable().toString());//used  使用存储单元数
+                    String oid = values[0].getVariable().toString();
+                    if (PHYSICAL_MEMORY_OID.equals(oid)){
+                        systemDTO.setPhyMem((long)totalSize * unit/(1024*1024*1024));
+                        systemDTO.setPhyUzi((long)usedSize*100/totalSize);
+                        System.out.println("PHYSICAL_MEMORY----->物理内存大小："+(long)totalSize * unit/(1024*1024*1024)+"G   内存使用率为："+(long)usedSize*100/totalSize+"%");
+                    }else if (VIRTUAL_MEMORY_OID.equals(oid)) {
+                        systemDTO.setVirtualMem((long)totalSize * unit/(1024*1024*1024));
+                        systemDTO.setVirtualUzi((long)usedSize*100/totalSize);
+                        System.out.println("VIRTUAL_MEMORY----->虚拟内存大小："+(long)totalSize * unit/(1024*1024*1024)+"G   内存使用率为："+(long)usedSize*100/totalSize+"%");
+                    }
+                }
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            try {
+                if(transport!=null)
+                    transport.close();
+                if(snmp!=null)
+                    snmp.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return systemDTO;
+        }
+    }
+
+    //获取磁盘相关信息
+    public static long collectDisk(String ip) {
+        TransportMapping transport = null ;
+        Snmp snmp = null ;
+        CommunityTarget target;
+        String DISK_OID = "1.3.6.1.2.1.25.2.1.4";
+        String[] oids = {"1.3.6.1.2.1.25.2.3.1.2",  //type 存储单元类型
+                "1.3.6.1.2.1.25.2.3.1.3",  //descr
+                "1.3.6.1.2.1.25.2.3.1.4",  //unit 存储单元大小
+                "1.3.6.1.2.1.25.2.3.1.5",  //size 总存储单元数
+                "1.3.6.1.2.1.25.2.3.1.6"}; //used 使用存储单元数;
+        long diskUzi = 0;
+        try {
+            transport = new DefaultUdpTransportMapping();
+            snmp = new Snmp(transport);//创建snmp
+            snmp.listen();//监听消息
+            target = new CommunityTarget();
+            target.setCommunity(new OctetString("public"));
+            target.setRetries(2);
+            target.setAddress(GenericAddress.parse("udp:"+ip+"/161"));
+            target.setTimeout(8000);
+            target.setVersion(SnmpConstants.version2c);
+            TableUtils tableUtils = new TableUtils(snmp, new PDUFactory() {
+                @Override
+                public PDU createPDU(Target arg0) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+
+                @Override
+                public PDU createPDU(MessageProcessingModel messageProcessingModel) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+            });
+            OID[] columns = new OID[oids.length];
+            for (int i = 0; i < oids.length; i++)
+                columns[i] = new OID(oids[i]);
+            @SuppressWarnings("unchecked")
+            List<TableEvent> list = tableUtils.getTable(target, columns, null, null);
+            if(list.size()==1 && list.get(0).getColumns()==null){
+                System.out.println(" null");
+            }else{
+                for(TableEvent event : list){
+                    VariableBinding[] values = event.getColumns();
+                    if(values == null ||!DISK_OID.equals(values[0].getVariable().toString()))
+                        continue;
+                    int unit = Integer.parseInt(values[2].getVariable().toString());//unit 存储单元大小
+                    int totalSize = Integer.parseInt(values[3].getVariable().toString());//size 总存储单元数
+                    int usedSize = Integer.parseInt(values[4].getVariable().toString());//used  使用存储单元数
+                    diskUzi = (long)usedSize*100/totalSize;
+                    System.out.println(getChinese(values[1].getVariable().toString())+"   磁盘大小："+(long)totalSize*unit/(1024*1024*1024)+"G   磁盘使用率为："+(long)usedSize*100/totalSize+"%");
+                }
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            try {
+                if(transport!=null)
+                    transport.close();
+                if(snmp!=null)
+                    snmp.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return diskUzi;
+        }
+    }
+
+    //服务器进程集合信息
+    public static void collectProcess() {
+        TransportMapping transport = null ;
+        Snmp snmp = null ;
+        CommunityTarget target;
+        String[] oids =
+                {"1.3.6.1.2.1.25.4.2.1.1",  //index
+                        "1.3.6.1.2.1.25.4.2.1.2",  //name
+                        "1.3.6.1.2.1.25.4.2.1.4",  //run path
+                        "1.3.6.1.2.1.25.4.2.1.6",  //type
+                        "1.3.6.1.2.1.25.5.1.1.1",  //cpu
+                        "1.3.6.1.2.1.25.5.1.1.2"}; //memory
+        try {
+            transport = new DefaultUdpTransportMapping();
+            snmp = new Snmp(transport);
+            snmp.listen();
+            target = new CommunityTarget();
+            target.setCommunity(new OctetString("public"));
+            target.setRetries(2);
+            target.setAddress(GenericAddress.parse("udp:127.0.0.1/161"));
+            target.setTimeout(8000);
+            target.setVersion(SnmpConstants.version2c);
+            TableUtils tableUtils = new TableUtils(snmp, new PDUFactory() {
+                @Override
+                public PDU createPDU(Target arg0) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+
+                @Override
+                public PDU createPDU(MessageProcessingModel messageProcessingModel) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+            });
+            OID[] columns = new OID[oids.length];
+            for (int i = 0; i < oids.length; i++)
+                columns[i] = new OID(oids[i]);
+            @SuppressWarnings("unchecked")
+            List<TableEvent> list = tableUtils.getTable(target, columns, null, null);
+            if(list.size()==1 && list.get(0).getColumns()==null){
+                System.out.println(" null");
+            }else{
+                for(TableEvent event : list){
+                    VariableBinding[] values = event.getColumns();
+                    if(values == null) continue;
+                    String name = values[1].getVariable().toString();//name
+                    String cpu = values[4].getVariable().toString();//cpu
+                    String memory = values[5].getVariable().toString();//memory
+                    String path = values[2].getVariable().toString();//path
+                    System.out.println("name--->"+name+"  cpu--->"+cpu+"  memory--->"+memory+"  path--->"+path);
+                }
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            try {
+                if(transport!=null)
+                    transport.close();
+                if(snmp!=null)
+                    snmp.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //服务器系统服务集合
+    public static void collectService() {
+        TransportMapping transport = null ;
+        Snmp snmp = null ;
+        CommunityTarget target;
+        String[] oids =
+                {"1.3.6.1.4.1.77.1.2.3.1.1"};
+        try {
+            transport = new DefaultUdpTransportMapping();
+            snmp = new Snmp(transport);
+            snmp.listen();
+            target = new CommunityTarget();
+            target.setCommunity(new OctetString("public"));
+            target.setRetries(2);
+            target.setAddress(GenericAddress.parse("udp:127.0.0.1/161"));
+            target.setTimeout(8000);
+            target.setVersion(SnmpConstants.version2c);
+            TableUtils tableUtils = new TableUtils(snmp, new PDUFactory() {
+                @Override
+                public PDU createPDU(Target arg0) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+
+                @Override
+                public PDU createPDU(MessageProcessingModel messageProcessingModel) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+            });
+            OID[] columns = new OID[oids.length];
+            for (int i = 0; i < oids.length; i++)
+                columns[i] = new OID(oids[i]);
+            @SuppressWarnings("unchecked")
+            List<TableEvent> list = tableUtils.getTable(target, columns, null, null);
+            if(list.size()==1 && list.get(0).getColumns()==null){
+                System.out.println(" null");
+            }else{
+                for(TableEvent event : list){
+                    VariableBinding[] values = event.getColumns();
+                    if(values == null) continue;
+                    String name = values[0].getVariable().toString();//name
+                    System.out.println("名称--->"+getChinese(name));//中文乱码，需要转为utf-8编码
+                }
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            try {
+                if(transport!=null)
+                    transport.close();
+                if(snmp!=null)
+                    snmp.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //服务器端口集合
+    public static void collectPort() {
+        TransportMapping transport = null ;
+        Snmp snmp = null ;
+        CommunityTarget target;
+        String[] TCP_CONN = {"1.3.6.1.2.1.6.13.1.1", //status
+                "1.3.6.1.2.1.6.13.1.3"}; //port
+
+        String[] UDP_CONN = {"1.3.6.1.2.1.7.5.1.2"};
+        try {
+            transport = new DefaultUdpTransportMapping();
+            snmp = new Snmp(transport);
+            snmp.listen();
+            target = new CommunityTarget();
+            target.setCommunity(new OctetString("public"));
+            target.setRetries(2);
+            target.setAddress(GenericAddress.parse("udp:127.0.0.1/161"));
+            target.setTimeout(8000);
+            target.setVersion(SnmpConstants.version2c);
+            TableUtils tableUtils = new TableUtils(snmp, new PDUFactory() {
+                @Override
+                public PDU createPDU(Target arg0) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+
+                @Override
+                public PDU createPDU(MessageProcessingModel messageProcessingModel) {
+                    PDU request = new PDU();
+                    request.setType(PDU.GET);
+                    return request;
+                }
+            });
+//获取TCP 端口
+            OID[] columns = new OID[TCP_CONN.length];
+            for (int i = 0; i < TCP_CONN.length; i++)
+                columns[i] = new OID(TCP_CONN[i]);
+            @SuppressWarnings("unchecked")
+            List<TableEvent> list = tableUtils.getTable(target, columns, null, null);
+            if(list.size()==1 && list.get(0).getColumns()==null){
+                System.out.println(" null");
+            }else{
+                for(TableEvent event : list){
+                    VariableBinding[] values = event.getColumns();
+                    if(values == null) continue;
+                    int status = Integer.parseInt(values[0].getVariable().toString());
+                    System.out.println("status--->"+status+"   TCP_port--->"+values[1].getVariable().toString());
+                }
+            }
+//获取udp 端口
+            OID[] udpcolumns = new OID[UDP_CONN.length];
+            for (int i = 0; i < UDP_CONN.length; i++)
+                udpcolumns[i] = new OID(UDP_CONN[i]);
+            @SuppressWarnings("unchecked")
+            List<TableEvent> udplist = tableUtils.getTable(target, udpcolumns, null, null);
+            if(udplist.size()==1 && udplist.get(0).getColumns()==null){
+                System.out.println(" null");
+            }else{
+                for(TableEvent event : udplist){
+                    VariableBinding[] values = event.getColumns();
+                    if(values == null) continue;
+                    String name = values[0].getVariable().toString();//name
+                    System.out.println("UDP_port--->"+name);
+                }
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            try {
+                if(transport!=null)
+                    transport.close();
+                if(snmp!=null)
+                    snmp.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static String getChinese(String octetString){
+        if(octetString == null || "".equals(octetString)
+                || "null".equalsIgnoreCase(octetString)) return "";
+        try{
+            String[] temps = octetString.split(":");
+            byte[] bs = new byte[temps.length];
+            for(int i=0;i<temps.length;i++)
+                bs[i] = (byte)Integer.parseInt(temps[i],16);
+            return new String(bs,"GB2312");
+        }catch(Exception e){
+            return null;
+        }
+    }
+
 }

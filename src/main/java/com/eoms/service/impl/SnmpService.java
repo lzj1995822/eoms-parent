@@ -1,15 +1,14 @@
 package com.eoms.service.impl;
 
+import com.eoms.domain.dto.SystemDTO;
 import com.eoms.domain.nms.*;
-import com.eoms.service.IPRouteTableService;
-import com.eoms.service.InterfaceDetailService;
-import com.eoms.service.InterfaceSevice;
-import com.eoms.service.TerminalService;
+import com.eoms.service.*;
 import com.eoms.snmp.SnmpConstant;
 import com.eoms.snmp.SnmpUtils;
 import org.snmp4j.PDU;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +31,9 @@ public class SnmpService {
 
     @Autowired
     private InterfaceDetailService interfaceDetailService;
+
+    @Autowired
+    private SysAbilityService sysAbilityService;
 
     public Terminal getDeviceInfo(String ip) {
         List<OID> oidList = new ArrayList<>();
@@ -352,12 +354,77 @@ public class SnmpService {
         return tcpConnectTableList;
     }
 
+    public IcmpUdp getIcmpUdp(String ip) {
+        List<String> oidList = new ArrayList<>();
+        oidList.add(SnmpConstant.icmpInErrors);
+        oidList.add(SnmpConstant.icmpInMsgs);
+        oidList.add(SnmpConstant.icmpOutErrors);
+        oidList.add(SnmpConstant.icmpOutMsgs);
+        oidList.add(SnmpConstant.udpInDatagrams);
+        oidList.add(SnmpConstant.udpInErrors);
+        oidList.add(SnmpConstant.udpOutDatagrams);
+        PDU responsePDU = SnmpUtils.snmpGetList(ip,"public",oidList);
+        IcmpUdp icmpUdp = new IcmpUdp();
+        if (responsePDU == null) {
+            return null;
+        }
+        icmpUdp = icmpUdp.toEntity(icmpUdp,responsePDU);
+        return  icmpUdp;
+    }
+
+    public SnmpInfo getSnmpInfo(String ip) {
+        List<String> oidList = new ArrayList<>();
+        oidList.add(SnmpConstant.snmpInPkts);
+        oidList.add(SnmpConstant.snmpOutPkts);
+        oidList.add(SnmpConstant.snmpInBadVersions);
+        oidList.add(SnmpConstant.snmpInBadCommunityNames);
+        oidList.add(SnmpConstant.snmpInBadCommunityUses);
+        oidList.add(SnmpConstant.snmpInGetRequests);
+        oidList.add(SnmpConstant.snmpInSetRequests);
+        oidList.add(SnmpConstant.snmpOutNoSuchNames);
+        PDU responsePDU = SnmpUtils.snmpGetList(ip,"public",oidList);
+        SnmpInfo snmpInfo = new SnmpInfo();
+        if (responsePDU == null) {
+            return null;
+        }
+        snmpInfo = snmpInfo.toEntity(snmpInfo,responsePDU);
+        return  snmpInfo;
+    }
+
+    public HrSystem getHySystem(String ip) {
+        List<String> oidList = new ArrayList<>();
+        oidList.add(SnmpConstant.hrSystemDate);
+        oidList.add(SnmpConstant.hrSystemNumUsers);
+        oidList.add(SnmpConstant.hrSystemProcesses);
+        oidList.add(SnmpConstant.hrMemorySize);
+        PDU responsePDU = SnmpUtils.snmpGetList(ip,"public",oidList);
+        HrSystem hrSystem = new HrSystem();
+        if (responsePDU == null) {
+            return null;
+        }
+        hrSystem = hrSystem.toEntity(hrSystem,responsePDU);
+        return  hrSystem;
+    }
+
+    public SystemDTO get(Terminal terminal) {
+        SystemDTO systemDTO = SnmpUtils.collectMemory(terminal.getTerminalIp());
+        systemDTO.setCpuUzi(SnmpUtils.collectCPU(terminal.getTerminalIp()));
+        systemDTO.setDiskUzi(SnmpUtils.collectDisk(terminal.getTerminalIp()));
+        SysAbility sysAbility = new SysAbility();
+        BeanUtils.copyProperties(systemDTO,sysAbility);
+        sysAbility.setTerminalId(terminal.getId());
+        sysAbilityService.save(sysAbility);
+        return systemDTO;
+    }
 
     public static void main(String[] args) {
         SnmpService snmpService = new SnmpService();
 //        SnmpUtils.snmpGet("127.0.0.1","public","1.3.6.1.2.1.4.21.1.1.127.0.0.1");
-        snmpService.getTCPTable("192.168.0.106");
+//        snmpService.getHySystem("192.168.0.106");
 //            snmpService.getDeviceInfo("192.168.0.101");
+//        SnmpUtils.collectDisk();
+//        SnmpUtils.collectMemory();
+
 //        List<Interface> interfaceList = new ArrayList<>();
 //        interfaceList =  snmpService.getInterfaceList("127.0.0.1");
 //        System.out.print(interfaceList);

@@ -176,6 +176,44 @@ public final class SnmpConstant {
     public static final String tcpConnRemAddress = "1.3.6.1.2.1.6.13.1.4";
     public static final String tcpConnRemPort = "1.3.6.1.2.1.6.13.1.5";
 
+    //接受到的icmp报文总数 oid 1.3.6.1.2.1.5.1.0
+    public static final String icmpInMsgs = "1.3.6.1.2.1.5.1.0";
+
+    //接收到的特定的ICMP错误的报文个数。例如：错误检验和、错误长度等。 oid 1.3.6.1.2.1.5.2.0
+    public static final String icmpInErrors = "1.3.6.1.2.1.5.2.0";
+
+    //接受到的icmp报文总数 oid 1.3.6.1.2.1.5.14.0
+    public static final String icmpOutMsgs = "1.3.6.1.2.1.5.14.0";
+
+    //没有发送成功的ICMP报文的个数 oid 1.3.6.1.2.1.5.15.0
+    public static final String icmpOutErrors = "1.3.6.1.2.1.5.15.0";
+
+    //UDP输入报文统计 1.3.6.1.2.1.7.1.0
+    public static final String udpInDatagrams = "1.3.6.1.2.1.7.1.0";
+
+    //接收到的有错误（例如校验和错误）而不能提交的UDP数据报个数，不包括因目的端口不可达而丢弃的报文数。 1.3.6.1.2.1.7.3.0
+    public static final String udpInErrors = "1.3.6.1.2.1.7.3.0";
+
+    //表示从本端发送的UDP数据报总数 1.3.6.1.2.1.7.4.0
+    public static final String udpOutDatagrams = "1.3.6.1.2.1.7.4.0";
+
+    public static final String snmpInPkts = "1.3.6.1.2.1.11.1.0";
+    public static final String snmpOutPkts = "1.3.6.1.2.1.11.2.0";
+    public static final String snmpInBadVersions = "1.3.6.1.2.1.11.3.0";
+    public static final String snmpInBadCommunityNames = "1.3.6.1.2.1.11.4.0";
+    public static final String snmpInBadCommunityUses = "1.3.6.1.2.1.11.5.0";
+    public static final String snmpInGetRequests = "1.3.6.1.2.1.11.15.0";
+    public static final String snmpInSetRequests = "1.3.6.1.2.1.11.17.0";
+    public static final String snmpOutNoSuchNames = "1.3.6.1.2.1.11.21.0";
+
+
+    public static final String hrSystemDate = "1.3.6.1.2.1.25.1.2.0";
+
+    public static final String hrSystemNumUsers = "1.3.6.1.2.1.25.1.5.0";
+
+    public static final String hrSystemProcesses = "1.3.6.1.2.1.25.1.6.0";
+
+    public static final String hrMemorySize = "1.3.6.1.2.1.25.2.2.0";
 
 }
 

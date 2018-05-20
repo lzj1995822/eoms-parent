@@ -211,4 +211,86 @@
             <column name="UPDATE_AT" type="datetime"/>
         </createTable>
     </changeSet>
+    
+    <changeSet id="2018-0519-01" author="asher">
+        <comment>icmp/udp表</comment>
+        <createTable tableName="nms_icmp_udp">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_icmp_udp"/>
+            </column>
+            <column name="terminal_id" type="varchar(36)">
+                <constraints referencedTableName="nms_terminal" referencedColumnNames="id" foreignKeyName="fk_icmp_udp"/>
+            </column>
+            <column name="icmp_in_msgs" type="bigint"/>
+            <column name="icmp_in_errors" type="bigint"/>
+            <column name="icmp_out_msgs" type="bigint"/>
+            <column name="icmp_out_errors" type="bigint"/>
+            <column name="udp_in_datagrams" type="bigint"/>
+            <column name="udp_in_errors" type="bigint"/>
+            <column name="udp_out_datagrams" type="bigint"/>
+            <column name="CREATE_AT" type="datetime"/>
+            <column name="UPDATE_AT" type="datetime"/>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet id="2018-0519-02" author="asher">
+        <comment>snmp表</comment>
+        <createTable tableName="nms_snmp_table">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_snmp_table"/>
+            </column>
+            <column name="terminal_id" type="varchar(36)">
+                <constraints referencedTableName="nms_terminal" referencedColumnNames="id" foreignKeyName="fk_snmp_table"/>
+            </column>
+            <column name="snmp_in_pkts" type="bigint"/>
+            <column name="snmp_out_pkts" type="bigint"/>
+            <column name="snmp_in_bad_versions" type="bigint"/>
+            <column name="snmp_in_bad_community_names" type="bigint"/>
+            <column name="snmp_in_bad_community_uses" type="bigint"/>
+            <column name="snmp_in_get_requests" type="bigint"/>
+            <column name="snmp_in_get_nexts" type="bigint"/>
+            <column name="snmp_in_set_requests " type="bigint"/>
+            <column name="snmp_out_no_such_names" type="bigint"/>
+            <column name="CREATE_AT" type="datetime"/>
+            <column name="UPDATE_AT" type="datetime"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2018-05-19-04" author="asher">
+        <createTable tableName="nms_hr_table">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_hy_interface"/>
+            </column>
+            <column name="terminal_id" type="varchar(36)">
+                <constraints referencedTableName="nms_terminal" referencedColumnNames="id" foreignKeyName="fk_nms_hy_ter"/>
+            </column>
+            <column name="hr_system_date" type="varchar(36)"/>
+            <column name="hr_system_num_users" type="varchar(36)"/>
+            <column name="hr_system_processes" type="varchar(36)"/>
+            <column name="hr_memory_size" type="varchar(36)"/>
+            <column name="CREATE_AT" type="datetime"/>
+            <column name="UPDATE_AT" type="datetime"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2018519-05" author="asher">
+        <comment>性能表</comment>
+        <createTable tableName="nms_sys_ability">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_hy_ab"/>
+            </column>
+            <column name="terminal_id" type="varchar(36)">
+                <constraints referencedTableName="nms_terminal" referencedColumnNames="id" foreignKeyName="fk_nms_ab"/>
+            </column>
+            <column name="cpu_uzi" type="bigint"/>
+            <column name="virtual_mem" type="bigint"/>
+            <column name="phy_mem" type="bigint"/>
+            <column name="virtual_uzi" type="bigint"/>
+            <column name="phy_uzi" type="bigint"/>
+            <column name="disk_uzi" type="bigint"/>
+            <column name="CREATE_AT" type="datetime"/>
+            <column name="UPDATE_AT" type="datetime"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
