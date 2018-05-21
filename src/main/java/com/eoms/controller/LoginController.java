@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/user")
 public class LoginController {
 
     @Autowired
     private UserService userService;
 
-    @GetMapping("/")
-    public User login(@RequestParam String name, @RequestParam String password) {
+    @GetMapping("/login")
+    public User login(@RequestParam(value = "name") String name, @RequestParam(value = "password") String password) {
         User user = userService.login(name,password);
         return  user;
     }
