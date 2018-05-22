@@ -21,9 +21,9 @@ public class TerminalController {
     @Autowired
     private SnmpService snmpService;
 
-    @GetMapping("/scan")
-    public List<SystemDTO> scanTerminal(){
-        return terminalService.scanTerminal();
+    @GetMapping("/scan/{ip}")
+    public List<SystemDTO> scanTerminal(@PathVariable String ip){
+        return terminalService.scanTerminal(ip);
     }
 
     @GetMapping("/cal")

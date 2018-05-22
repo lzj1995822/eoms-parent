@@ -13,7 +13,7 @@ public interface TerminalService extends BaseService<Terminal, String> {
      * 扫描网络上的终端
      * @return
      */
-    List<SystemDTO> scanTerminal();
+    List<SystemDTO> scanTerminal(String ip);
 
     Terminal findTerminalByTerminalIp(String terminalIp);
 }

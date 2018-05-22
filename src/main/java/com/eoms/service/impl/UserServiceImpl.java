@@ -20,6 +20,6 @@ public class UserServiceImpl extends BaseServiseImpl<User, String> implements Us
 
     @Override
     public User login(String name, String password) {
-        return null;
+        return userRepository.findByNameAndPassword(name,password);
     }
 }
